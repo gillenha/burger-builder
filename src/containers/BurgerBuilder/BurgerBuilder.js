@@ -23,16 +23,18 @@ class BurgerBuilder extends Component {
 		totalPrice: 5.95,
 		purchaseable: false,
 		purchasing: false,
-		loading: false
+		loading: false,
+		error: false
 	}
 
 	componentDidMount () {
-		axios.get('https://my-react-burger-8f058.firebaseio.com/ingredients')
+		axios.get('https://my-react-burger-8f058.firebaseio.com/ingredients.json')
 		.then(response => {
-			this.setState({
-				ingredients: response.data
-			});
-		});
+			this.setState({ ingredients: response.data });
+		} )
+		.catch(error => {
+			this.setState({ error: true })
+		} )
 	}
 
 	updatePurchaseState (ingredients) {
@@ -43,9 +45,7 @@ class BurgerBuilder extends Component {
 			.reduce((sum, el) => {
 				return sum + el;
 			}, 0);
-		this.setState({
-			purchaseable: sum > 0
-		});
+		this.setState({ purchaseable: sum > 0 });
 	}
 
 	addIngredientHandler = (type) => {
@@ -138,7 +138,7 @@ class BurgerBuilder extends Component {
 			disabledInfo[key] = disabledInfo[key] <= 0
 		}
 		let orderSummary = null;
-		let burger = <Spinner />
+		let burger = this.state.error ? <p>Ingredients can't be loaded</p> : <Spinner />
 
 		if (this.state.ingredients) {
 			burger = (
